@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Nuevo miembro - FitManager</title>
+  <link rel="stylesheet" href="estilos.css">
+  <script src="transitions.js" defer></script>
+</head>
+
+<body class="dashboard-page">
+  <div class="dashboard-layout fit-layout payreg-layout">
+    <aside class="sidebar fit-sidebar">
+      <a class="fit-brand" href="dashboard.html"><img class="fit-brand-logo" src="assets/fitmanager-logo.png" alt="FitManager"> <span>FitManager</span></a>
+      <nav class="fit-nav">
+        <a href="dashboard.html"><span class="nav-ico">⌂</span> Panel de control</a>
+        <a href="miembros.html"><span class="nav-ico">👤</span> Miembros</a>
+        <a href="asistencias.html"><span class="nav-ico">📅</span> Asistencias</a>
+        <a class="active-link" href="pagos.html"><span class="nav-ico">💳</span> Pagos</a>
+        <a href="entrenadores.html"><span class="nav-ico">🏋️</span> Entrenadores</a>
+        <a href="acceso.html"><span class="nav-ico">🖐️</span> Acceso</a>
+      </nav>
+      <a class="logout fit-logout" href="login.html">Salir <span>↪</span></a>
+    </aside>
+
+    <main class="main fit-main payreg-main">
+      <h1 class="fit-title">Nuevo miembro <span class="punto">●</span></h1>
+      <p class="fit-description payreg-description">Registra los datos personales del cliente en la plataforma.</p>
+
+      <section class="payreg-card">
+        <header class="payreg-card-title">Registro del cliente</header>
+
+        <form class="payreg-form" action="#" method="post">
+          <label class="payreg-field payreg-wide">Tipo de Documento
+            <select id="tipoDocumentoCliente">
+              <option value="" disabled selected>Seleccione su Documento...</option>
+              <option value="Cedula de ciudadania">Cedula de ciudadania</option>
+              <option value="Tarjeta de identidad">Tarjeta de identidad</option>
+              <option value="Cedula de extranjeria">Cedula de extranjeria</option>
+            </select>
+          </label>
+
+          <label class="payreg-field">Numero de Documento
+            <input id="documentoCliente" type="text" inputmode="numeric" pattern="[0-9]*" placeholder="Digite su numero de Documento...">
+          </label>
+
+          <label class="payreg-field">Nombre
+            <input id="nombreCliente" type="text" placeholder="Nombre...">
+          </label>
+
+          <label class="payreg-field">Correo Electronico
+            <input id="correoCliente" type="email" placeholder="Escribe tu correo electronico...">
+          </label>
+
+          <label class="payreg-field">Telefono
+            <input id="telefonoCliente" type="tel" inputmode="numeric" pattern="[0-9]*" placeholder="Telefono...">
+          </label>
+
+          <label class="payreg-field payreg-wide">Direccion
+            <input id="direccionCliente" type="text" placeholder="Direccion del cliente...">
+          </label>
+
+          <div class="payreg-actions payreg-wide">
+            <a class="btn-cancel" href="miembros.html" title="Cancelar y volver a miembros">CANCELAR</a>
+            <button class="btn-main" type="submit">REGISTRAR CLIENTE</button>
+          </div>
+        </form>
+      </section>
+    </main>
+  </div>
+
+  <div id="successMessage" class="success-modal" style="display: none;">
+    <div class="success-modal-content">
+      <span class="success-icon">✓</span>
+      <h2>¡Registro Exitoso!</h2>
+      <p>El cliente ha sido registrado correctamente</p>
+      <div class="success-modal-actions">
+        <button class="btn-main" onclick="closeSuccessMessage()">Aceptar</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="theme.js"></script>
+  <script>
+    const API_URL = 'http://localhost:3000/api';
+    const form = document.querySelector('.payreg-form');
+    const successMessage = document.getElementById('successMessage');
+
+    function mostrarMensaje() {
+      // El registro exitoso se confirma con su modal; no se agregan avisos en la página.
+    }
+
+    function permitirSoloNumeros(id) {
+      document.getElementById(id).addEventListener('input', function () {
+        this.value = this.value.replace(/\D/g, '');
+      });
+    }
+
+    function correoValido(correo) {
+      return !correo || /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(correo);
+    }
+
+    function fechaHoy() {
+      return new Date().toISOString().slice(0, 10);
+    }
+
+    form.addEventListener('submit', async function(e) {
+      e.preventDefault();
+
+      const documento = document.getElementById('documentoCliente').value.trim();
+      const nombre = document.getElementById('nombreCliente').value.trim();
+      const correo = document.getElementById('correoCliente').value.trim();
+      const telefono = document.getElementById('telefonoCliente').value.trim();
+      const direccion = document.getElementById('direccionCliente').value.trim();
+
+      if (!documento || !nombre || !direccion) {
+        mostrarMensaje('Completa documento, nombre y direccion.');
+        return;
+      }
+
+      if (!/^\d+$/.test(documento)) {
+        mostrarMensaje('El documento solo debe tener números.');
+        return;
+      }
+
+      if (telefono && !/^\d+$/.test(telefono)) {
+        mostrarMensaje('El teléfono solo debe tener números.');
+        return;
+      }
+
+      if (!correoValido(correo)) {
+        mostrarMensaje('Escribe un correo válido.');
+        return;
+      }
+
+      try {
+        const resMiembro = await fetch(`${API_URL}/miembros`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            nombre,
+            documento,
+            telefono,
+            correo,
+            direccion,
+            fecha_registro: fechaHoy()
+          })
+        });
+
+        const dataMiembro = await resMiembro.json();
+
+        if (!resMiembro.ok) {
+          mostrarMensaje(dataMiembro.mensaje || 'No se pudo registrar el cliente.');
+          return;
+        }
+
+        successMessage.style.display = 'flex';
+      } catch (error) {
+        mostrarMensaje('No se pudo conectar con la API.');
+      }
+    });
+
+    permitirSoloNumeros('documentoCliente');
+    permitirSoloNumeros('telefonoCliente');
+
+    function closeSuccessMessage() {
+      successMessage.style.display = 'none';
+      setTimeout(function() {
+        window.location.href = 'miembros.html';
+      }, 500);
+    }
+  </script>
+</body>
+
+</html>
+
+
+
+
+
+

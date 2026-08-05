@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Registro - FitManager</title>
+  <link rel="stylesheet" href="estilos.css">
+  <script src="transitions.js" defer></script>
+</head>
+
+<body class="auth-page login-page register-page">
+  <header class="topbar login-topbar">
+    <a class="login-brand" href="index.html" aria-label="Volver al inicio">
+      <img src="assets/fitmanager-logo.png" alt="">
+      <span>FitManager</span>
+    </a>
+    <h1>Administrador</h1>
+  </header>
+
+  <main class="auth-wrap login-wrap register-wrap">
+    <section class="auth-card login-card register-card">
+      <div class="login-heading register-heading">
+        <h2>Crear cuenta <span class="punto" aria-label="Activo">●</span></h2>
+        <p>Regístrate para acceder al panel de administración de FitManager</p>
+      </div>
+
+      <div class="auth-card-body register-body">
+        <label for="tipoDocRegistro">Tipo de Documento</label>
+        <div class="input-with-icon select-with-icon">
+          <svg aria-hidden="true" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="16" rx="2"/><circle cx="8.5" cy="10" r="2.1"/><path d="M5.8 16c.7-1.7 1.7-2.6 2.7-2.6s2 .9 2.7 2.6M14.5 9h3.2M14.5 13h3.2M14.5 16h2.2"/></svg>
+          <select id="tipoDocRegistro">
+            <option value="" disabled selected>Seleccione su Documento...</option>
+            <option value="Cedula de ciudadania">Cédula de ciudadanía</option>
+            <option value="Tarjeta de identidad">Tarjeta de identidad</option>
+            <option value="Cedula de extranjeria">Cédula de extranjería</option>
+          </select>
+        </div>
+
+        <div class="two-cols register-cols">
+          <div>
+            <label for="usuarioRegistro">Número de Documento</label>
+            <div class="input-with-icon">
+              <svg aria-hidden="true" viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 20c.8-4 3.4-6 8-6s7.2 2 8 6H4z"/></svg>
+              <input id="usuarioRegistro" type="text" inputmode="numeric" pattern="[0-9]*" placeholder="Digite su documento...">
+            </div>
+          </div>
+          <div>
+            <label for="nombreRegistro">Nombre</label>
+            <div class="input-with-icon">
+              <svg aria-hidden="true" viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 20c.8-4 3.4-6 8-6s7.2 2 8 6H4z"/></svg>
+              <input id="nombreRegistro" type="text" placeholder="Ingrese su nombre...">
+            </div>
+          </div>
+        </div>
+
+        <div class="two-cols register-cols">
+          <div>
+            <label for="correoRegistro">Correo electrónico</label>
+            <div class="input-with-icon">
+              <svg aria-hidden="true" viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="14" rx="1"/><path d="m4 7 8 6 8-6"/></svg>
+              <input id="correoRegistro" type="email" placeholder="Ingrese su correo...">
+            </div>
+          </div>
+          <div>
+            <label for="telefonoRegistro">Teléfono</label>
+            <div class="input-with-icon">
+              <svg aria-hidden="true" viewBox="0 0 24 24"><path d="M5 3h4l2 5-2.5 1.8a15 15 0 0 0 5.7 5.7L16 13l5 2v4c0 1.1-.9 2-2 2C10.2 21 3 13.8 3 5c0-1.1.9-2 2-2z"/></svg>
+              <input id="telefonoRegistro" type="text" inputmode="numeric" pattern="[0-9]*" placeholder="Ingrese su teléfono...">
+            </div>
+          </div>
+        </div>
+
+        <label for="rolRegistro">Rol</label>
+        <div class="input-with-icon select-with-icon">
+          <svg aria-hidden="true" viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 20c.8-4 3.4-6 8-6s7.2 2 8 6H4z"/></svg>
+          <select id="rolRegistro"><option value="Administrador" selected>Administrador</option></select>
+        </div>
+
+        <div class="two-cols register-cols">
+          <div>
+            <label for="contrasenaRegistro">Contraseña</label>
+            <div class="input-with-icon">
+              <svg aria-hidden="true" viewBox="0 0 24 24"><rect x="5" y="10" width="14" height="10" rx="1"/><path d="M8 10V7a4 4 0 0 1 8 0v3M12 14v3"/></svg>
+              <input id="contrasenaRegistro" type="password" autocomplete="new-password" placeholder="Ingrese su contraseña...">
+            </div>
+          </div>
+          <div>
+            <label for="confirmarRegistro">Confirmar contraseña</label>
+            <div class="input-with-icon">
+              <svg aria-hidden="true" viewBox="0 0 24 24"><rect x="5" y="10" width="14" height="10" rx="1"/><path d="M8 10V7a4 4 0 0 1 8 0v3M12 14v3"/></svg>
+              <input id="confirmarRegistro" type="password" autocomplete="new-password" placeholder="Confirme su contraseña...">
+            </div>
+          </div>
+        </div>
+
+        <label class="terms register-terms"><input id="terminos" type="checkbox"> Acepto los términos y condiciones</label>
+        <button id="btnRegistro" class="btn-main" type="button">REGISTRARME</button>
+        <p id="mensajeRegistro" class="mensaje-form" aria-live="polite"></p>
+      </div>
+    </section>
+
+    <div class="auth-links login-links register-links">
+      <a href="login.html"><svg aria-hidden="true" viewBox="0 0 24 24"><path d="M19 12H5M11 6l-6 6 6 6"/></svg>Volver al inicio de sesión</a>
+    </div>
+  </main>
+
+  <script src="theme.js"></script>
+  <script>
+    const AUTH_ENDPOINTS = ['http://localhost:3000/api/auth', 'http://localhost:8000'];
+
+    async function enviarAuth(path, payload) {
+      let ultimoError = null;
+      for (const baseUrl of AUTH_ENDPOINTS) {
+        try {
+          const respuesta = await fetch(`${baseUrl}${path}`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(payload)
+          });
+          const data = await respuesta.json();
+          return { ok: respuesta.ok, data };
+        } catch (error) { ultimoError = error; }
+      }
+      throw ultimoError || new Error('No fue posible conectar con servicios de autenticación');
+    }
+
+    const btnRegistro = document.getElementById('btnRegistro');
+    const mensajeRegistro = document.getElementById('mensajeRegistro');
+
+    btnRegistro.addEventListener('click', async function () {
+      const tipoDocumento = document.getElementById('tipoDocRegistro').value;
+      const usuario = document.getElementById('usuarioRegistro').value.trim();
+      const correo = document.getElementById('correoRegistro').value.trim();
+      const telefono = document.getElementById('telefonoRegistro').value.trim();
+      const rol = document.getElementById('rolRegistro').value;
+      const contrasena = document.getElementById('contrasenaRegistro').value;
+      const confirmar = document.getElementById('confirmarRegistro').value;
+      const acepto = document.getElementById('terminos').checked;
+      mensajeRegistro.textContent = '';
+
+      if (!tipoDocumento || !usuario || !correo || !contrasena) {
+        mensajeRegistro.textContent = 'Selecciona el tipo de documento y completa documento, correo y contraseña';
+        return;
+      }
+      if (!/^\d+$/.test(usuario)) { mensajeRegistro.textContent = 'El documento solo debe tener números'; return; }
+      if (telefono && !/^\d+$/.test(telefono)) { mensajeRegistro.textContent = 'El teléfono solo debe tener números'; return; }
+      if (correo && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(correo)) { mensajeRegistro.textContent = 'Escribe un correo válido'; return; }
+      if (contrasena !== confirmar) { mensajeRegistro.textContent = 'Las contraseñas no coinciden'; return; }
+      if (!acepto) { mensajeRegistro.textContent = 'Debes aceptar los términos'; return; }
+
+      try {
+        const resultado = await enviarAuth('/registro', { usuario, contrasena, rol, tipoDocumento, correo });
+        if (resultado.ok) {
+          mensajeRegistro.textContent = resultado.data.mensaje || 'Registro exitoso';
+          setTimeout(function () { window.fitNavigate ? window.fitNavigate('login.html') : window.location.href = 'login.html'; }, 350);
+          return;
+        }
+        mensajeRegistro.textContent = resultado.data?.mensaje || 'No fue posible registrar el usuario';
+      } catch (error) { mensajeRegistro.textContent = 'No se pudo conectar al servidor de autenticación'; }
+    });
+
+    ['usuarioRegistro', 'telefonoRegistro'].forEach((id) => {
+      document.getElementById(id).addEventListener('input', function () { this.value = this.value.replace(/\D/g, ''); });
+    });
+  </script>
+</body>
+
+</html>

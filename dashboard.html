@@ -1,0 +1,247 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Panel de Control - FitManager</title>
+  <link rel="stylesheet" href="estilos.css">
+  <script src="transitions.js" defer></script>
+</head>
+
+<body class="dashboard-page">
+
+  <div class="dashboard-layout fit-layout">
+    <aside class="sidebar fit-sidebar">
+      <a class="fit-brand" href="dashboard.html"><img class="fit-brand-logo" src="assets/fitmanager-logo.png" alt="FitManager"> <span>FitManager</span></a>
+
+      <nav>
+        <a class="active-link" href="dashboard.html">Panel de control</a>
+        <a href="miembros.html">Miembros</a>
+        <a href="asistencias.html">Asistencias</a>
+        <a href="pagos.html">Pagos</a>
+        <a href="entrenadores.html">Entrenadores</a>
+        <a href="acceso.html">Acceso</a>
+      </nav>
+
+      <a class="logout fit-logout" href="login.html">Salir</a>
+    </aside>
+
+    <main class="main fit-main dashboard-main">
+      <h1 class="titulo">Panel de control <span class="punto">●</span></h1>
+      <p class="dashboard-description">Gestiona y consulta la información principal de tu gimnasio.</p>
+
+      <section class="cards">
+        <div class="card stat verde">
+          <span class="metric-icon" aria-hidden="true">$</span>
+          <p>Ingresos Del mes</p>
+          <h3 id="ingresosMes">$0</h3>
+        </div>
+        <div class="card stat azul">
+          <span class="metric-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><circle cx="9" cy="8" r="3"/><circle cx="17" cy="10" r="2"/><path d="M3 20c.6-4 2.6-6 6-6s5.4 2 6 6M15 15c3 0 5 1.6 5.5 4.5"/></svg></span>
+          <p>Miembros Activos</p>
+          <h3 id="miembrosActivos">0</h3>
+        </div>
+        <div class="card stat amarillo">
+          <span class="metric-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M18 10a6 6 0 0 0-12 0c0 7-3 7-3 9h18c0-2-3-2-3-9M10 22h4"/></svg></span>
+          <p>Membresias Vencidas o Inactivas</p>
+          <h3 id="membresiasVencidas">0</h3>
+        </div>
+      </section>
+
+      <section class="grid-2">
+        <div class="box">
+          <h3>Gestión Rápida</h3>
+          <div class="quick-actions">
+            <a class="quick-btn" href="registroDePago.html"><i class="quick-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="9" cy="7" r="3"/><path d="M3 20c.5-4 2.5-6 6-6s5.5 2 6 6M19 8v6M16 11h6"/></svg></i><span><strong>Nuevo Miembro</strong><em>Ir a miembros</em></span></a>
+            <a class="quick-btn" href="acceso.html"><i class="quick-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M11 4H5a1 1 0 0 0-1 1v14a1 1 0 0 0 1 1h6M14 8l4 4-4 4M18 12H9"/></svg></i><span><strong>Acceso Clientes</strong><em>Registrar ingreso</em></span></a>
+            <a class="quick-btn" href="miembros.html"><i class="quick-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="8" cy="8" r="3"/><circle cx="17" cy="9" r="2"/><path d="M2 20c.6-4 2.5-6 6-6s5.4 2 6 6M15 15c3 0 5 1.7 5.5 4.5"/></svg></i><span><strong>Gestionar Miembros</strong><em>Ver listado</em></span></a>
+            <a class="quick-btn" href="asistencias.html"><i class="quick-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M7 3v4M17 3v4M3 10h18M8 15l2 2 5-5"/></svg></i><span><strong>Asistencias</strong><em>Ver historial</em></span></a>
+          </div>
+        </div>
+
+        <div class="box">
+          <h3>Alertas y Recordatorios</h3>
+          <p class="dashboard-alert warning"><i><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M18 10a6 6 0 0 0-12 0c0 7-3 7-3 9h18c0-2-3-2-3-9M10 22h4"/></svg></i><span>Membresías por vencer</span><strong id="membresiasPorVencer">0</strong></p>
+          <p class="dashboard-alert success"><i><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="M3 10h18M7 15h4M15 15h2"/></svg></i><span>Pagos pendientes</span><strong id="pagosPendientes">0</strong></p>
+        </div>
+      </section>
+
+      <section class="tabla">
+        <h3>Asistencias Recientes</h3>
+        <div class="fila fila-head">
+          <span>Miembros</span>
+          <span>Check-in</span>
+          <span>Estado</span>
+        </div>
+        <div id="asistenciasRecientes"></div>
+      </section>
+    </main>
+  </div>
+
+  <script src="theme.js"></script>
+  <script>
+    const API_URL = 'http://localhost:3000/api';
+    const DIAS_ALERTA_VENCIMIENTO = 7;
+
+    const ingresosMes = document.getElementById('ingresosMes');
+    const miembrosActivos = document.getElementById('miembrosActivos');
+    const membresiasVencidas = document.getElementById('membresiasVencidas');
+    const membresiasPorVencer = document.getElementById('membresiasPorVencer');
+    const pagosPendientes = document.getElementById('pagosPendientes');
+    const asistenciasRecientes = document.getElementById('asistenciasRecientes');
+
+    function parseFecha(valor) {
+      if (!valor) return null;
+      const texto = String(valor).slice(0, 10);
+      const partes = texto.split('-').map(Number);
+      if (partes.length !== 3 || partes.some(Number.isNaN)) return null;
+      return new Date(partes[0], partes[1] - 1, partes[2]);
+    }
+
+    function inicioDia(fecha) {
+      return new Date(fecha.getFullYear(), fecha.getMonth(), fecha.getDate());
+    }
+
+    function sumarDias(fecha, dias) {
+      const copia = new Date(fecha);
+      copia.setDate(copia.getDate() + dias);
+      return copia;
+    }
+
+    function formatoFecha(valor) {
+      const fecha = parseFecha(valor);
+      if (!fecha) return 'Sin fecha';
+      const meses = ['enero', 'febrero', 'marzo', 'abril', 'mayo', 'junio', 'julio', 'agosto', 'septiembre', 'octubre', 'noviembre', 'diciembre'];
+      return `${fecha.getDate()} de ${meses[fecha.getMonth()]} ${fecha.getFullYear()}`;
+    }
+
+    function diferenciaDias(desde, hasta) {
+      return Math.ceil((inicioDia(hasta) - inicioDia(desde)) / 86400000);
+    }
+
+    function formatoDinero(valor) {
+      return Number(valor).toLocaleString('es-CO', { style: 'currency', currency: 'COP', maximumFractionDigits: 0 });
+    }
+
+    function buscarMiembro(miembros, id) {
+      return miembros.find((miembro) => Number(miembro.id) === Number(id));
+    }
+
+    function obtenerEstadoMembresia(miembro, hoy) {
+      const fechaVencimiento = parseFecha(miembro.fecha_vencimiento);
+      const diasRestantes = fechaVencimiento ? diferenciaDias(hoy, fechaVencimiento) : -1;
+
+      if (miembro.estado !== 'Activo' || diasRestantes < 0) {
+        return { texto: 'Inactivo', clase: 'alert', vigente: false, vencida: true, porVencer: false };
+      }
+
+      return {
+        texto: diasRestantes <= DIAS_ALERTA_VENCIMIENTO ? 'Por vencer' : 'Activo',
+        clase: diasRestantes <= DIAS_ALERTA_VENCIMIENTO ? 'warn' : 'ok',
+        vigente: true,
+        vencida: false,
+        porVencer: diasRestantes <= DIAS_ALERTA_VENCIMIENTO
+      };
+    }
+
+    function fechaHoraAsistencia(asistencia) {
+      const fecha = String(asistencia.fecha || '').slice(0, 10);
+      const hora = String(asistencia.hora || '').slice(0, 8);
+      return `${formatoFecha(fecha)} ${hora}`.trim();
+    }
+
+    function pintarAsistencias(asistencias, miembros, estados) {
+      asistenciasRecientes.innerHTML = '';
+      const recientes = [...asistencias].sort((a, b) => {
+        const fechaA = `${String(a.fecha || '').slice(0, 10)}T${String(a.hora || '00:00:00').slice(0, 8)}`;
+        const fechaB = `${String(b.fecha || '').slice(0, 10)}T${String(b.hora || '00:00:00').slice(0, 8)}`;
+        return fechaB.localeCompare(fechaA);
+      }).slice(0, 3);
+
+      if (recientes.length === 0) {
+        asistenciasRecientes.innerHTML = '<div class="fila"><span>No hay asistencias registradas</span><span>Usa Acceso Clientes</span><span class="alert">Sin datos</span></div>';
+        return;
+      }
+
+      recientes.forEach((asistencia) => {
+        const miembro = buscarMiembro(miembros, asistencia.miembro_id);
+        const esEntrenador = asistencia.tipo === 'Entrenador';
+        const estado = esEntrenador ? { texto: 'Entrenador', clase: 'active' } : (miembro ? estados.get(Number(miembro.id)) : { texto: 'Sin miembro', clase: 'alert' });
+        const fila = document.createElement('div');
+        fila.className = 'fila';
+        const nombre = miembro ? miembro.nombre : (asistencia.miembro_nombre || (esEntrenador ? 'Entrenador' : 'Miembro ' + asistencia.miembro_id));
+        fila.innerHTML = `<span class="dashboard-person"><i>${String(nombre).trim().charAt(0).toUpperCase()}</i><strong>${nombre}</strong></span><span>${fechaHoraAsistencia(asistencia)}</span><span class="${estado.clase}">${estado.texto}</span>`;
+        asistenciasRecientes.appendChild(fila);
+      });
+    }
+
+    async function cargarDashboard() {
+      try {
+        const [resMiembros, resPagos, resAsistencias] = await Promise.all([
+          fetch(`${API_URL}/miembros`),
+          fetch(`${API_URL}/pagos`),
+          fetch(`${API_URL}/asistencias`)
+        ]);
+
+        if (!resMiembros.ok || !resPagos.ok || !resAsistencias.ok) {
+          throw new Error('Respuesta invalida de la API');
+        }
+
+        const [miembros, pagos, asistencias] = await Promise.all([
+          resMiembros.json(),
+          resPagos.json(),
+          resAsistencias.json()
+        ]);
+
+        const hoy = inicioDia(new Date());
+        const estados = new Map();
+        let activos = 0;
+        let vencidas = 0;
+        let porVencer = 0;
+        let pendientes = 0;
+
+        miembros.forEach((miembro) => {
+          const estado = obtenerEstadoMembresia(miembro, hoy);
+          estados.set(Number(miembro.id), estado);
+          if (estado.vigente) activos += 1;
+          if (estado.vencida) vencidas += 1;
+          if (estado.porVencer) porVencer += 1;
+          if (estado.vencida) pendientes += 1;
+        });
+
+        const totalMes = pagos.reduce((total, pago) => {
+          const fechaPago = parseFecha(pago.fecha_pago);
+          if (!fechaPago) return total;
+          const esMesActual = fechaPago.getFullYear() === hoy.getFullYear() && fechaPago.getMonth() === hoy.getMonth();
+          return esMesActual ? total + Number(pago.valor || 0) : total;
+        }, 0);
+
+        ingresosMes.textContent = formatoDinero(totalMes);
+        miembrosActivos.textContent = activos;
+        membresiasVencidas.textContent = vencidas;
+        membresiasPorVencer.textContent = porVencer;
+        pagosPendientes.textContent = pendientes;
+        pintarAsistencias(asistencias, miembros, estados);
+      } catch (error) {
+        ingresosMes.textContent = '$0';
+        miembrosActivos.textContent = '0';
+        membresiasVencidas.textContent = '0';
+        membresiasPorVencer.textContent = '0';
+        pagosPendientes.textContent = '0';
+        asistenciasRecientes.innerHTML = '<div class="fila"><span>No se pudo conectar con la API</span><span>Revisa el servidor</span><span class="alert">Error</span></div>';
+      }
+    }
+
+    cargarDashboard();
+  </script>
+
+</body>
+
+</html>
+
+
+
+
+
+

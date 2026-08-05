@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Recuperar contraseña - FitManager</title>
+  <link rel="stylesheet" href="estilos.css">
+  <script src="transitions.js" defer></script>
+</head>
+
+<body class="auth-page login-page recovery-page">
+  <header class="topbar login-topbar">
+    <a class="login-brand" href="index.html" aria-label="Volver al inicio">
+      <img src="assets/fitmanager-logo.png" alt="">
+      <span>FitManager</span>
+    </a>
+    <h1>Administrador</h1>
+  </header>
+
+  <main class="auth-wrap login-wrap recovery-wrap">
+    <section class="auth-card login-card recovery-card">
+      <div class="login-heading recovery-heading">
+        <h2>Recuperar contraseña <span class="punto" aria-label="Activo">●</span></h2>
+        <p>Ingresa tu correo y te enviaremos un enlace para restablecer tu contraseña.</p>
+      </div>
+
+      <form id="formRecuperacion" class="auth-card-body login-body recovery-body">
+        <label for="correoRecuperacion">Correo electrónico</label>
+        <div class="input-with-icon">
+          <svg aria-hidden="true" viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="14" rx="1"/><path d="m4 7 8 6 8-6"/></svg>
+          <input id="correoRecuperacion" type="email" autocomplete="email" required placeholder="Ingrese su correo electrónico...">
+        </div>
+        <button class="btn-main" type="submit">ENVIAR ENLACE</button>
+        <p id="mensajeRecuperacion" class="mensaje-form" aria-live="polite"></p>
+      </form>
+    </section>
+
+    <div class="auth-links login-links recovery-links">
+      <a href="login.html"><svg aria-hidden="true" viewBox="0 0 24 24"><path d="M19 12H5M11 6l-6 6 6 6"/></svg>Volver al inicio de sesión</a>
+    </div>
+  </main>
+
+  <script src="theme.js"></script>
+  <script>
+    document.getElementById('formRecuperacion').addEventListener('submit', async (event) => {
+      event.preventDefault();
+      const mensaje = document.getElementById('mensajeRecuperacion');
+      const correo = document.getElementById('correoRecuperacion').value.trim();
+      mensaje.textContent = '';
+
+      try {
+        const respuesta = await fetch('http://localhost:3000/api/auth/forgot-password', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ correo })
+        });
+        const datos = await respuesta.json();
+        mensaje.textContent = datos.mensaje || 'No fue posible enviar el enlace.';
+      } catch (error) {
+        mensaje.textContent = 'No se pudo conectar con el servidor.';
+      }
+    });
+  </script>
+</body>
+
+</html>

@@ -1,0 +1,448 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Miembros - FitManager</title>
+  <link rel="stylesheet" href="estilos.css">
+  <script src="transitions.js" defer></script>
+</head>
+
+<body class="dashboard-page">
+  <div class="dashboard-layout fit-layout">
+    <aside class="sidebar fit-sidebar">
+      <a class="fit-brand" href="dashboard.html"><img class="fit-brand-logo" src="assets/fitmanager-logo.png" alt="FitManager"> <span>FitManager</span></a>
+      <nav class="fit-nav">
+        <a href="dashboard.html"><span class="nav-ico">⌂</span> Panel de control</a>
+        <a class="active-link" href="miembros.html"><span class="nav-ico">👤</span> Miembros</a>
+        <a href="asistencias.html"><span class="nav-ico">📅</span> Asistencias</a>
+        <a href="pagos.html"><span class="nav-ico">💳</span> Pagos</a>
+        <a href="entrenadores.html"><span class="nav-ico">🏋️</span> Entrenadores</a>
+        <a href="acceso.html"><span class="nav-ico">🖐️</span> Acceso</a>
+      </nav>
+      <a class="logout fit-logout" href="login.html">Salir <span>↪</span></a>
+    </aside>
+
+    <main class="main fit-main">
+      <h1 class="fit-title">Miembros <span class="punto">●</span></h1>
+      <p class="fit-description">Administra la información y el estado de tus miembros.</p>
+
+      <section class="fit-card members-card">
+        <header class="fit-toolbar">
+          <label class="search-input"><span>🔍</span><input id="buscarMiembro" type="search" placeholder="Buscar por nombre o email..."></label>
+          <select class="status-select" id="filtroEstadoMiembro">
+            <option value="">Todos los estados</option>
+            <option value="Activo">Activo</option>
+            <option value="Inactivo">Inactivo</option>
+          </select>
+          <a class="btn-main btn-top-action" href="registroDePago.html" title="Crear un miembro y registrar su primer pago">Nuevo Miembro</a>
+        </header>
+
+        <div class="fit-table fit-members-table">
+          <div class="fit-row fit-head">
+            <span>Miembros</span><span>Plan</span><span>Estado</span><span>Vencimiento</span><span>Acciones</span>
+          </div>
+          <div id="listaMiembros"></div>
+        </div>
+
+        <footer class="fit-footer"><span id="totalMiembros">Cargando miembros...</span><div class="pager"><button id="btnMiembrosAnterior" type="button">Anterior</button><button id="btnMiembrosSiguiente" type="button">Siguiente</button></div></footer>
+      </section>
+
+      <div id="miembrosModalOverlay" class="member-modal-overlay" hidden>
+        <div class="member-modal" id="modalPago" hidden>
+          <h3>💳 Pago de membresia</h3><div class="member-modal-content"><div class="member-highlight"><strong id="mmNombrePago"></strong><small>Vence: <span id="mmVencePago"></span></small></div>
+          <label>Seleccionar Membresia</label><select id="mmPlanPago"><option value="" disabled selected>Selecciona la membresia...</option><option value="Mensual">Mensual</option><option value="2 meses">2 meses</option><option value="Anual">Anual</option></select>
+          <label>Seleccionar Plan</label><select id="mmTipoPlanPago"><option value="" disabled selected>Selecciona el plan...</option><option value="Plan Elite">Plan Elite</option><option value="Plan Pro">Plan Pro</option><option value="Plan Basic">Plan Basic</option></select>
+          <label>Metodo de Pago</label><select id="mmMetodoPago"><option value="" disabled selected>Selecciona el metodo de pago...</option><option value="Efectivo">Efectivo</option><option value="Tarjeta">Tarjeta</option><option value="Transferencia">Transferencia</option></select>
+          <label>Total a Pagar</label><input id="mmMontoPago" type="text" placeholder="Selecciona un plan..." readonly>
+          <div class="member-modal-actions"><button type="button" class="btn-close-modal">VOLVER</button><button type="button">PAGAR</button></div></div>
+        </div>
+        <div class="member-modal" id="modalEstado" hidden>
+          <h3>🛡️ Estado de Membresia</h3><div class="member-modal-content"><div class="member-highlight"><strong id="mmNombreEstado"></strong><small>ID: <span id="mmIdEstado"></span></small></div>
+          <p><strong>Plan:</strong> <span id="mmPlanEstado"></span></p><p><strong>Vencimiento:</strong> <span id="mmVenceEstado"></span></p>
+          <div class="member-modal-actions"><button type="button" class="btn-close-modal">VOLVER</button><button id="btnInactivarMiembro" type="button" class="danger">INACTIVAR</button></div></div>
+        </div>
+        <div class="member-modal" id="modalEditar" hidden>
+          <h3>✏️ Editar usuario del cliente</h3><div class="member-modal-content"><div class="member-highlight"><strong id="mmNombreEditar"></strong><small>Editar datos del miembro</small></div>
+          <label>Nombre Completo</label><input id="mmInputNombre" type="text">
+          <label>Numero de Documento</label><input id="mmInputId" type="text" inputmode="numeric" pattern="[0-9]*">
+          <label>Telefono</label><input id="mmInputTelefono" type="text" inputmode="numeric" pattern="[0-9]*">
+          <label>Correo</label><input id="mmInputCorreo" type="email">
+          <label>Direccion</label><input id="mmInputDireccion" type="text">
+          <div class="member-modal-actions"><button type="button" class="btn-close-modal">VOLVER</button><button id="btnGuardarMiembro" type="button">GUARDAR</button></div></div>
+        </div>
+        <div class="member-modal" id="modalEliminar" hidden>
+          <h3>🛑 Eliminar Cuenta de Usuario</h3><div class="member-modal-content"><div class="member-highlight"><strong id="mmNombreEliminar"></strong><small>Vence: <span id="mmVenceEliminar"></span></small></div>
+          <p>El miembro se eliminara del sistema junto con sus pagos y asistencias registradas.</p>
+          <div class="member-modal-actions"><button type="button" class="btn-close-modal" title="Cerrar ventana">VOLVER</button></div></div>
+        </div>
+      </div>
+
+    </main>
+  </div>
+
+<script src="theme.js"></script>
+<script>
+  const API_URL = 'http://localhost:3000/api';
+  const overlay = document.getElementById('miembrosModalOverlay');
+  const listaMiembros = document.getElementById('listaMiembros');
+  const totalMiembros = document.getElementById('totalMiembros');
+  const buscarMiembro = document.getElementById('buscarMiembro');
+  const filtroEstadoMiembro = document.getElementById('filtroEstadoMiembro');
+  const btnMiembrosAnterior = document.getElementById('btnMiembrosAnterior');
+  const btnMiembrosSiguiente = document.getElementById('btnMiembrosSiguiente');
+  const DIAS_ALERTA_VENCIMIENTO = 7;
+  // Se muestran más miembros por página para utilizar el espacio disponible.
+  const REGISTROS_POR_PAGINA = 5;
+  let miembros = [];
+  let pagos = [];
+  let miembroSeleccionado = null;
+  let paginaMiembros = 1;
+  const modales = {
+    card: document.getElementById('modalPago'),
+    shield: document.getElementById('modalEstado'),
+    edit: document.getElementById('modalEditar'),
+    delete: document.getElementById('modalEliminar')
+  };
+
+  function mostrarMensaje() {
+    // Los cambios se reflejan directamente en la tabla y los modales.
+  }
+
+  function cerrarModales() {
+    overlay.hidden = true;
+    Object.values(modales).forEach(m => m.hidden = true);
+  }
+
+  function fechaHoy() {
+    return new Date().toISOString().slice(0, 10);
+  }
+
+  function parseFecha(valor) {
+    if (!valor) return null;
+    const partes = String(valor).slice(0, 10).split('-').map(Number);
+    if (partes.length !== 3 || partes.some(Number.isNaN)) return null;
+    return new Date(partes[0], partes[1] - 1, partes[2]);
+  }
+
+  function formatoISO(fecha) {
+    const year = fecha.getFullYear();
+    const month = String(fecha.getMonth() + 1).padStart(2, '0');
+    const day = String(fecha.getDate()).padStart(2, '0');
+    return `${year}-${month}-${day}`;
+  }
+
+  function formatoFecha(valor) {
+    const fecha = parseFecha(valor);
+    if (!fecha) return 'Sin fecha';
+    const meses = ['enero', 'febrero', 'marzo', 'abril', 'mayo', 'junio', 'julio', 'agosto', 'septiembre', 'octubre', 'noviembre', 'diciembre'];
+    return `${fecha.getDate()} de ${meses[fecha.getMonth()]} ${fecha.getFullYear()}`;
+  }
+
+  function sumarMeses(fecha, meses) {
+    const copia = new Date(fecha);
+    const diaOriginal = copia.getDate();
+    copia.setMonth(copia.getMonth() + meses);
+    if (copia.getDate() !== diaOriginal) copia.setDate(0);
+    return copia;
+  }
+
+  function mesesPorMembresia(membresia) {
+    if (membresia === '2 Meses' || membresia === '2 meses') return 2;
+    if (membresia === 'Anual') return 12;
+    return 1;
+  }
+
+  const preciosPorPlan = {
+    'Plan Elite': 120000,
+    'Plan Pro': 100000,
+    'Plan Basic': 85000
+  };
+
+  function actualizarMontoPago() {
+    const plan = document.getElementById('mmTipoPlanPago').value;
+    document.getElementById('mmMontoPago').value = preciosPorPlan[plan] || '';
+  }
+
+  function obtenerMembresiaMiembro(miembroId) {
+    const miembro = miembros.find((item) => Number(item.id) === Number(miembroId));
+    return {
+      membresia: miembro ? miembro.membresia || 'Mensual' : 'Mensual',
+      plan: miembro ? miembro.plan || 'Sin plan' : 'Sin plan'
+    };
+  }
+
+  function obtenerUltimoPago(miembroId) {
+    return pagos
+      .filter((pago) => Number(pago.miembro_id) === Number(miembroId))
+      .sort((a, b) => String(b.fecha_pago || '').localeCompare(String(a.fecha_pago || '')))[0];
+  }
+
+  function obtenerVencimientoMiembro(miembro) {
+    return miembro.fecha_vencimiento || '';
+  }
+
+  function obtenerEstadoMiembro(miembro) {
+    const vencimiento = parseFecha(obtenerVencimientoMiembro(miembro));
+    if (miembro.estado === 'Inactivo' || !vencimiento) return { texto: 'Inactivo', clase: 'blocked', filtro: 'Inactivo' };
+    const diasRestantes = Math.ceil((vencimiento - parseFecha(fechaHoy())) / 86400000);
+    if (diasRestantes < 0) return { texto: 'Inactivo', clase: 'blocked', filtro: 'Inactivo' };
+    if (diasRestantes <= DIAS_ALERTA_VENCIMIENTO) return { texto: 'Por vencer', clase: 'warning', filtro: 'Activo' };
+    return { texto: 'Activo', clase: 'active', filtro: 'Activo' };
+  }
+
+  function abrirModal(tipo, miembro) {
+    miembroSeleccionado = miembro;
+    const nombre = miembro.nombre;
+    const id = miembro.id;
+    const datosMembresia = obtenerMembresiaMiembro(id);
+    const plan = datosMembresia.plan || 'Sin plan';
+    const vence = obtenerVencimientoMiembro(miembro);
+
+    document.getElementById('mmNombrePago').textContent = nombre;
+    document.getElementById('mmVencePago').textContent = formatoFecha(vence);
+    document.getElementById('mmNombreEstado').textContent = nombre;
+    document.getElementById('mmIdEstado').textContent = id;
+    document.getElementById('mmPlanEstado').textContent = plan;
+    document.getElementById('mmVenceEstado').textContent = formatoFecha(vence);
+    const botonEstado = document.getElementById('btnInactivarMiembro');
+    const estaInactivo = obtenerEstadoMiembro(miembro).filtro === 'Inactivo';
+    botonEstado.textContent = estaInactivo ? 'ACTIVAR' : 'INACTIVAR';
+    botonEstado.classList.toggle('danger', !estaInactivo);
+    document.getElementById('mmNombreEditar').textContent = nombre;
+    document.getElementById('mmInputNombre').value = nombre;
+    document.getElementById('mmInputId').value = miembro.documento;
+    document.getElementById('mmInputTelefono').value = miembro.telefono || '';
+    document.getElementById('mmInputCorreo').value = miembro.correo || '';
+    document.getElementById('mmInputDireccion').value = miembro.direccion || '';
+    document.getElementById('mmNombreEliminar').textContent = nombre;
+    document.getElementById('mmVenceEliminar').textContent = formatoFecha(vence);
+    document.getElementById('mmPlanPago').value = '';
+    document.getElementById('mmTipoPlanPago').value = '';
+    document.getElementById('mmMetodoPago').value = '';
+    document.getElementById('mmMontoPago').value = '';
+
+    overlay.hidden = false;
+    Object.values(modales).forEach(m => m.hidden = true);
+    modales[tipo].hidden = false;
+  }
+
+  function crearFilaMiembro(miembro) {
+    const datosMembresia = obtenerMembresiaMiembro(miembro.id);
+    const plan = datosMembresia.plan || 'Sin plan';
+    const vencimiento = obtenerVencimientoMiembro(miembro);
+    const estado = obtenerEstadoMiembro(miembro);
+    const fila = document.createElement('div');
+    fila.className = 'fit-row';
+    fila.innerHTML = `
+      <div class="fit-person"><span class="user-avatar">${String(miembro.nombre || 'M').trim().charAt(0).toUpperCase()}</span><span><strong>${miembro.nombre}</strong><small>${miembro.correo || 'Sin correo'}</small><small>ID: ${miembro.id}</small></span></div>
+      <span class="tag-plan basic">${plan}</span>
+      <span class="tag-status ${estado.clase}">${estado.texto}</span>
+      <span>${formatoFecha(vencimiento)}</span>
+      <span class="actions">
+        <button type="button" class="action-btn action-card" aria-label="Tarjeta" title="Registrar pago">💳</button>
+        <button type="button" class="action-btn action-shield" aria-label="Estado" title="Ver estado de la membresía">🛡️</button>
+        <button type="button" class="action-btn action-edit" aria-label="Editar" title="Editar datos del miembro">✏️</button>
+      </span>
+    `;
+
+    fila.querySelector('.action-card').addEventListener('click', () => abrirModal('card', miembro));
+    fila.querySelector('.action-shield').addEventListener('click', () => abrirModal('shield', miembro));
+    fila.querySelector('.action-edit').addEventListener('click', () => abrirModal('edit', miembro));
+    return fila;
+  }
+
+  function pintarMiembros() {
+    const busqueda = buscarMiembro.value.trim().toLowerCase();
+    const estadoSeleccionado = filtroEstadoMiembro.value;
+    const filtrados = miembros.filter((miembro) => {
+      const coincideBusqueda = miembro.nombre.toLowerCase().includes(busqueda) || String(miembro.correo || '').toLowerCase().includes(busqueda);
+      const coincideEstado = !estadoSeleccionado || obtenerEstadoMiembro(miembro).filtro === estadoSeleccionado;
+      return coincideBusqueda && coincideEstado;
+    });
+    const totalPaginas = Math.max(1, Math.ceil(filtrados.length / REGISTROS_POR_PAGINA));
+
+    if (paginaMiembros > totalPaginas) {
+      paginaMiembros = totalPaginas;
+    }
+
+    const inicio = (paginaMiembros - 1) * REGISTROS_POR_PAGINA;
+    const miembrosPagina = filtrados.slice(inicio, inicio + REGISTROS_POR_PAGINA);
+
+    listaMiembros.innerHTML = '';
+
+    if (filtrados.length === 0) {
+      listaMiembros.innerHTML = '<div class="fit-row"><span>No hay miembros registrados</span><span></span><span></span><span></span><span></span></div>';
+    } else {
+      miembrosPagina.forEach((miembro) => listaMiembros.appendChild(crearFilaMiembro(miembro)));
+    }
+
+    const fin = filtrados.length === 0 ? 0 : Math.min(inicio + REGISTROS_POR_PAGINA, filtrados.length);
+    totalMiembros.textContent = `Mostrando ${miembrosPagina.length} de ${filtrados.length} miembros`;
+    btnMiembrosAnterior.disabled = paginaMiembros <= 1;
+    btnMiembrosSiguiente.disabled = paginaMiembros >= totalPaginas;
+  }
+
+  async function cargarMiembros() {
+    try {
+      const [respuestaMiembros, respuestaPagos] = await Promise.all([
+        fetch(`${API_URL}/miembros`),
+        fetch(`${API_URL}/pagos`)
+      ]);
+      miembros = await respuestaMiembros.json();
+      pagos = await respuestaPagos.json();
+      pintarMiembros();
+    } catch (error) {
+      totalMiembros.textContent = 'No se pudo conectar con la API';
+    }
+  }
+
+  document.querySelector('#modalPago .member-modal-actions button:last-child').addEventListener('click', async () => {
+    if (!miembroSeleccionado) return;
+
+    const membresia = document.getElementById('mmPlanPago').value;
+    const plan = document.getElementById('mmTipoPlanPago').value;
+    const metodoPago = document.getElementById('mmMetodoPago').value;
+    const valor = document.getElementById('mmMontoPago').value.trim();
+
+    if (!membresia || !plan || !metodoPago || !valor) {
+      mostrarMensaje('Selecciona membresia, plan, metodo de pago y monto.');
+      return;
+    }
+
+    try {
+      const fechaPago = fechaHoy();
+      const respuesta = await fetch(`${API_URL}/pagos`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          miembro_id: miembroSeleccionado.id,
+          valor,
+          fecha_pago: fechaPago,
+          metodo_pago: metodoPago,
+          plan,
+          membresia
+        })
+      });
+
+      const data = await respuesta.json();
+      if (!respuesta.ok) {
+        mostrarMensaje(data.mensaje || 'No se pudo registrar el pago.');
+        return;
+      }
+
+      mostrarMensaje(data.mensaje || 'Pago registrado correctamente.');
+      cerrarModales();
+      cargarMiembros();
+    } catch (error) {
+      mostrarMensaje('No se pudo registrar el pago.');
+    }
+  });
+
+  document.getElementById('btnGuardarMiembro').addEventListener('click', async () => {
+    if (!miembroSeleccionado) return;
+
+    const payload = {
+      nombre: document.getElementById('mmInputNombre').value.trim(),
+      documento: document.getElementById('mmInputId').value.trim(),
+      telefono: document.getElementById('mmInputTelefono').value.trim(),
+      correo: document.getElementById('mmInputCorreo').value.trim(),
+      direccion: document.getElementById('mmInputDireccion').value.trim(),
+      fecha_registro: miembroSeleccionado.fecha_registro || fechaHoy()
+    };
+
+    if (!/^\d+$/.test(payload.documento)) {
+      mostrarMensaje('El documento solo debe tener números.');
+      return;
+    }
+
+    if (payload.telefono && !/^\d+$/.test(payload.telefono)) {
+      mostrarMensaje('El teléfono solo debe tener números.');
+      return;
+    }
+
+    if (payload.correo && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(payload.correo)) {
+      mostrarMensaje('Escribe un correo válido.');
+      return;
+    }
+
+    try {
+      const respuesta = await fetch(`${API_URL}/miembros/${miembroSeleccionado.id}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload)
+      });
+      const data = await respuesta.json();
+      mostrarMensaje(data.mensaje || 'Miembro actualizado.');
+      cerrarModales();
+      cargarMiembros();
+    } catch (error) {
+      mostrarMensaje('No se pudo actualizar el miembro.');
+    }
+  });
+
+  document.getElementById('btnInactivarMiembro').addEventListener('click', async () => {
+    if (!miembroSeleccionado) return;
+    const inactivo = obtenerEstadoMiembro(miembroSeleccionado).filtro === 'Inactivo';
+
+    try {
+      const accion = inactivo ? 'activar' : 'inactivar';
+      const respuesta = await fetch(`${API_URL}/miembros/${miembroSeleccionado.id}/${accion}`, { method: 'PATCH' });
+      const data = await respuesta.json();
+      mostrarMensaje(data.mensaje || `Miembro ${inactivo ? 'activado' : 'inactivado'}.`);
+      cerrarModales();
+      cargarMiembros();
+    } catch (error) {
+      mostrarMensaje('No se pudo inactivar el miembro.');
+    }
+  });
+
+  document.getElementById('mmTipoPlanPago').addEventListener('change', actualizarMontoPago);
+
+  overlay.addEventListener('click', (e) => {
+    if (e.target === overlay || e.target.classList.contains('btn-close-modal')) {
+      cerrarModales();
+    }
+  });
+
+  buscarMiembro.addEventListener('input', () => {
+    paginaMiembros = 1;
+    pintarMiembros();
+  });
+
+  filtroEstadoMiembro.addEventListener('change', () => {
+    paginaMiembros = 1;
+    pintarMiembros();
+  });
+
+  btnMiembrosAnterior.addEventListener('click', () => {
+    if (paginaMiembros > 1) {
+      paginaMiembros -= 1;
+      pintarMiembros();
+    }
+  });
+
+  btnMiembrosSiguiente.addEventListener('click', () => {
+    paginaMiembros += 1;
+    pintarMiembros();
+  });
+
+  cargarMiembros();
+
+  ['mmInputId', 'mmInputTelefono'].forEach((id) => {
+    document.getElementById(id).addEventListener('input', function () {
+      this.value = this.value.replace(/\D/g, '');
+    });
+  });
+</script>
+
+</body>
+
+</html>
+
+
+
+
+
+

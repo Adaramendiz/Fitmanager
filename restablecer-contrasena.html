@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Nueva contraseña - FitManager</title>
+  <link rel="stylesheet" href="estilos.css">
+  <script src="transitions.js" defer></script>
+</head>
+<body class="auth-page login-page reset-page">
+  <header class="topbar login-topbar">
+    <a class="login-brand" href="index.html" aria-label="Volver al inicio"><img src="assets/fitmanager-logo.png" alt=""><span>FitManager</span></a>
+    <h1>Administrador</h1>
+  </header>
+  <main class="auth-wrap login-wrap reset-wrap">
+    <section class="auth-card login-card reset-card">
+      <div class="login-heading reset-heading"><h2>Crear nueva contraseña <span class="punto" aria-label="Activo">●</span></h2><p>Elige una contraseña segura para volver a acceder a FitManager.</p></div>
+      <form id="formNuevaContrasena" class="auth-card-body login-body reset-body">
+        <label for="nuevaContrasena">Nueva contraseña</label>
+        <div class="input-with-icon"><svg aria-hidden="true" viewBox="0 0 24 24"><rect x="5" y="10" width="14" height="10" rx="1"/><path d="M8 10V7a4 4 0 0 1 8 0v3M12 14v3"/></svg><input id="nuevaContrasena" type="password" minlength="6" required placeholder="Mínimo 6 caracteres"></div>
+        <label for="confirmarContrasena">Confirmar contraseña</label>
+        <div class="input-with-icon"><svg aria-hidden="true" viewBox="0 0 24 24"><rect x="5" y="10" width="14" height="10" rx="1"/><path d="M8 10V7a4 4 0 0 1 8 0v3M12 14v3"/></svg><input id="confirmarContrasena" type="password" minlength="6" required placeholder="Repite la contraseña"></div>
+        <button class="btn-main" type="submit">CAMBIAR CONTRASEÑA</button>
+        <p id="mensajeNuevaContrasena" class="mensaje-form"></p>
+      </form>
+    </section>
+  </main>
+  <script src="theme.js"></script>
+  <script>
+    const token = new URLSearchParams(window.location.search).get('token');
+    document.getElementById('formNuevaContrasena').addEventListener('submit', async (event) => {
+      event.preventDefault();
+      const mensaje = document.getElementById('mensajeNuevaContrasena');
+      const contrasena = document.getElementById('nuevaContrasena').value;
+      const confirmar = document.getElementById('confirmarContrasena').value;
+      if (!token) { mensaje.textContent = 'El enlace de recuperación no es válido.'; return; }
+      if (contrasena !== confirmar) { mensaje.textContent = 'Las contraseñas no coinciden.'; return; }
+      try {
+        const respuesta = await fetch('http://localhost:3000/api/auth/reset-password', {
+          method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ token, contrasena })
+        });
+        const datos = await respuesta.json();
+        mensaje.textContent = datos.mensaje || 'No fue posible cambiar la contraseña.';
+        if (respuesta.ok) setTimeout(() => { window.fitNavigate ? window.fitNavigate('login.html') : window.location.href = 'login.html'; }, 350);
+      } catch (error) {
+        mensaje.textContent = 'No se pudo conectar con el servidor.';
+      }
+    });
+  </script>
+</body>
+</html>
